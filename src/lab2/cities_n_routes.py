@@ -4,8 +4,6 @@ Lab 2: Cities and Routes
 In the final project, you will need a bunch of cities spread across a map. Here you 
 will generate a bunch of cities and all possible routes between them.
 '''
-import random
-import itertools
 
 import random as rd
 import itertools as iter
