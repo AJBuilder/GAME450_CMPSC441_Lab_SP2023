@@ -44,6 +44,7 @@ def get_route_cost(route_coordinate, game_map):
     """
     # Build a path from start to end that looks like [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
     #print("Printing list: " + str(np.swapaxes(game_map, 0, 1).tolist()))
+    
     grid = Grid(matrix=np.swapaxes(game_map, 0, 1).tolist())
     #grid = Grid(matrix=game_map.tolist())
     
@@ -52,16 +53,14 @@ def get_route_cost(route_coordinate, game_map):
     
     finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
     path, runs = finder.find_path(start, end, grid)
-    print("Path is: " + str(path))
     
     #print('operations:', runs, 'path length:', len(path))
     print(grid.grid_str(path=path, start=start, end=end))
-
-    print(grid.grid_str(path=path, start=start, end=end)[::-1]) #<<<<<<<-------------
     
     #print("The zipped path: " + str(tuple(zip(*path))))
     #print("Different sum: " + str(game_map[list(path)].sum()))
     print("The cost arr: " + str(game_map[tuple(zip(*path))]))
+    print("The path: " + str(path))
     
     
     return game_map[tuple(zip(*path))].sum()
@@ -79,7 +78,8 @@ def route_to_coordinates(city_locations, city_names, routes):
 
 def generate_terrain(map_size):
     """ generate a terrain map of size map_size """
-    return np.random.randint(low=0, high=10, size=map_size)
+    #return np.random.randint(low=0, high=10, size=map_size)
+    return np.random.rand(*map_size)
 
 
 def main():
@@ -91,11 +91,12 @@ def main():
 
     city_names = ['Morkomasto', 'Morathrad', 'Eregailin', 'Corathrad', 'Eregarta', 
                   'Numensari', 'Rhunkadi', 'Londathrad', 'Baernlad', 'Forthyr']
-    map_size = 5, 5
+    map_size = 100, 100
 
     n_cities = len(city_names)
     game_map = generate_terrain(map_size)
     print(f'Map size: {game_map.shape}')
+    game_map = (game_map * 11).astype(int) # Convert [0,1) float to [0,10] int
     print(game_map)
     
 
