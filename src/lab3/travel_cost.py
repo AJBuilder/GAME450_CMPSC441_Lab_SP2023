@@ -55,12 +55,12 @@ def get_route_cost(route_coordinate, game_map):
     path, runs = finder.find_path(start, end, grid)
     
     #print('operations:', runs, 'path length:', len(path))
-    print(grid.grid_str(path=path, start=start, end=end))
+    #print(grid.grid_str(path=path, start=start, end=end))
     
     #print("The zipped path: " + str(tuple(zip(*path))))
     #print("Different sum: " + str(game_map[list(path)].sum()))
-    print("The cost arr: " + str(game_map[tuple(zip(*path))]))
-    print("The path: " + str(path))
+    #print("The cost arr: " + str(game_map[tuple(zip(*path))]))
+    #print("The path: " + str(path))
     
     
     return game_map[tuple(zip(*path))].sum()
