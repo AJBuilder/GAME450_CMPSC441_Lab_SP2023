@@ -13,25 +13,61 @@ fulfilled. Clearly explain in comments which line of code and variables are used
 import matplotlib.pyplot as plt
 import pygad
 import numpy as np
+import math
 
 import sys
 from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
 
-from src.lab5.landscape import elevation_to_rgba
+from src.lab5.landscape import elevation_to_rgba, get_elevation, elevation_steps
 
 
 def game_fitness(cities, idx, elevation, size):
-    fitness = 0.0001  # Do not return a fitness of 0, it will mess up the algorithm.
+    fitness = 0.000001  # Do not return a fitness of 0, it will mess up the algorithm.
     """
     Create your fitness function here to fulfill the following criteria:
     1. The cities should not be under water
     2. The cities should have a realistic distribution across the landscape
     3. The cities may also not be on top of mountains or on top of each other
     """
-    return fitness
-
+    
+    location = solution_to_cities(cities[idx], size)
+    height = elevation[location[0], location[1]]
+    
+    # Digital fitness checks first
+    if height < elevation_steps[1] or height > elevation_steps[3]:
+        return 0.000001
+    
+    
+    # Calculate fitness of distance distribution
+    
+    # First, find all distances to this city
+    distances=[]
+    for i,city in [(i,x) for i,x in enumerate(cities) if i!=idx]:
+        other_location = solution_to_cities(city,size)
+        distances[i] = math.sqrt((other_location[0]-location[0])**2 + (other_location[1]-location[1])**2)
+    
+    # The ideal distance we want each city to be between each other.
+    # Image dividing the map where each city has their own sector.
+    ideal_distance = math.sqrt((size[0] / cities.length())**2 + (size[0] / cities.length())**2)
+    
+    # Find how each distance compares to the ideal distance.
+    # Exponential function punishes cities that are really far away from the ideal distance
+    distance_fitnesses = []
+    for i,distance in enumerate(distances):
+        distance_fitnesses[i] = math.exp(-10*(ideal_distance - distance)**4) # e^(-10*x^4)
+    
+    # Average fitnesses together to determine the fitness of this city placement
+    average_fitness = sum(distance_fitnesses) / len(distance_fitnesses)
+    
+    # Ensure fitness is within range.
+    if average_fitness <= 0:
+        average_fitness = 0.000001
+    if average_fitness > 1:
+        average_fitness = 1
+        
+    return average_fitness
 
 def setup_GA(fitness_fn, n_cities, size):
     """
@@ -113,7 +149,7 @@ if __name__ == "__main__":
 
     size = 100, 100
     n_cities = 10
-    elevation = []
+    elevation = get_elevation(size)
     """ initialize elevation here from your previous code"""
     # normalize landscape
     elevation = np.array(elevation)

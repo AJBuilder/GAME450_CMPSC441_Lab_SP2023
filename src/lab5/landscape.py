@@ -3,6 +3,9 @@ from perlin_noise import PerlinNoise
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
+
+elevation_steps = [0.0, 0.3, 0.7, 0.95, 1.0]
+
 def get_elevation(size):
     xpix, ypix = size
     elevation = np.array([])
@@ -34,29 +37,28 @@ def elevation_to_rgba(elevation):
     grass = [   4/255, 164/255,  13/255]
     stone = [  96/255,  96/255,  96/255]
     snow  = [ 217/255, 217/255, 217/255]
-    steps = [0.0, 0.3, 0.7, 0.95, 1.0]
     
     mountain = {
         'red': (
-            (steps[0], water[0], water[0]), # Lower Water
-            (steps[1], water[0], grass[0]), # Upper Water/Lower Grass
-            (steps[2], grass[0], stone[0]), # Upper Grass/Lower Stone
-            (steps[3], stone[0],  snow[0]), # Upper Stone/Lower Snow
-            (steps[4],  snow[0],  snow[0]), # Upper Snow
+            (elevation_steps[0], water[0], water[0]), # Lower Water
+            (elevation_steps[1], water[0], grass[0]), # Upper Water/Lower Grass
+            (elevation_steps[2], grass[0], stone[0]), # Upper Grass/Lower Stone
+            (elevation_steps[3], stone[0],  snow[0]), # Upper Stone/Lower Snow
+            (elevation_steps[4],  snow[0],  snow[0]), # Upper Snow
         ),
         'green': (
-            (steps[0], water[1], water[1]), # Lower Water
-            (steps[1], water[1], grass[1]), # Upper Water/Lower Grass
-            (steps[2], grass[1], stone[1]), # Upper Grass/Lower Stone
-            (steps[3], stone[1],  snow[1]), # Upper Stone/Lower Snow
-            (steps[4],  snow[1],  snow[1]), # Upper Snow
+            (elevation_steps[0], water[1], water[1]), # Lower Water
+            (elevation_steps[1], water[1], grass[1]), # Upper Water/Lower Grass
+            (elevation_steps[2], grass[1], stone[1]), # Upper Grass/Lower Stone
+            (elevation_steps[3], stone[1],  snow[1]), # Upper Stone/Lower Snow
+            (elevation_steps[4],  snow[1],  snow[1]), # Upper Snow
         ),
         'blue': (
-            (steps[0], water[2], water[2]), # Lower Water
-            (steps[1], water[2], grass[2]), # Upper Water/Lower Grass
-            (steps[2], grass[2], stone[2]), # Upper Grass/Lower Stone
-            (steps[3], stone[2],  snow[2]), # Upper Stone/Lower Snow
-            (steps[4],  snow[2],  snow[2]), # Upper Snow
+            (elevation_steps[0], water[2], water[2]), # Lower Water
+            (elevation_steps[1], water[2], grass[2]), # Upper Water/Lower Grass
+            (elevation_steps[2], grass[2], stone[2]), # Upper Grass/Lower Stone
+            (elevation_steps[3], stone[2],  snow[2]), # Upper Stone/Lower Snow
+            (elevation_steps[4],  snow[2],  snow[2]), # Upper Snow
         )
     }
     colormap = LinearSegmentedColormap('MountainTerrain', mountain)
