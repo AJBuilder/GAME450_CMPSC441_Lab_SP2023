@@ -32,34 +32,52 @@ def game_fitness(cities, idx, elevation, size):
     3. The cities may also not be on top of mountains or on top of each other
     """
     
-    location = solution_to_cities(cities[idx], size)
-    height = elevation[location[0], location[1]]
-    
-    # Digital fitness checks first
-    if height < elevation_steps[1] or height > elevation_steps[3]:
-        return 0.000001
+    # Find fitness of elevations
+    # Elevations are transformed through a trapezoidal function similar to:
+    # 1        _________
+    #         /         \
+    #        /           \
+    # 0 ____/             \____
+    locations = solution_to_cities(cities, size)
+    elevation_fitnesses = []
+    for loc in locations:
+        height = elevation[loc[0], loc[1]]
+        if elevation_steps[0] < height < elevation_steps[1]: # If in water, completely unfit
+            return 0.000001 
+        elif elevation_steps[-3] < height < elevation_steps[-1]: # If in mountains, completely unfit
+            return 0.000001 
+        else:
+            elevation_fitnesses.append(1) 
     
     
     # Calculate fitness of distance distribution
     
-    # First, find all distances to this city
-    distances=[]
-    for i,city in [(i,x) for i,x in enumerate(cities) if i!=idx]:
-        other_location = solution_to_cities(city,size)
-        distances[i] = math.sqrt((other_location[0]-location[0])**2 + (other_location[1]-location[1])**2)
+    # First, find the euclidian distances between a city and it's nearest 4 neighbors
+    neighbor_distances=[]
+    for i,location in enumerate(locations):
+        lowests = [10000000,10000000,10000000,10000000]
+        for other_location in locations:
+            distance = math.sqrt((other_location[0] - location[0])**2 + (other_location[1] - location[1])**2)
+            for i,low in enumerate(lowests):
+                if distance < low:
+                    lowests[i] = distance
+                    
+        neighbor_distances += lowests
     
     # The ideal distance we want each city to be between each other.
-    # Image dividing the map where each city has their own sector.
-    ideal_distance = math.sqrt((size[0] / cities.length())**2 + (size[0] / cities.length())**2)
+    # Imagine dividing the map up where each city has their own sector.
+    ideal_distance = math.sqrt((size[0] / len(cities))**2 + (size[1] / len(cities))**2)
     
     # Find how each distance compares to the ideal distance.
     # Exponential function punishes cities that are really far away from the ideal distance
     distance_fitnesses = []
-    for i,distance in enumerate(distances):
-        distance_fitnesses[i] = math.exp(-10*(ideal_distance - distance)**4) # e^(-10*x^4)
-    
+    for distance in neighbor_distances:
+        distance_fitnesses.append(math.exp(-10*((ideal_distance - distance)**4))) # e^(-10*x^4)
+        
+        
+        
     # Average fitnesses together to determine the fitness of this city placement
-    average_fitness = sum(distance_fitnesses) / len(distance_fitnesses)
+    average_fitness = (sum(distance_fitnesses) + sum(elevation_fitnesses)) / (len(distance_fitnesses) + len(elevation_fitnesses))
     
     # Ensure fitness is within range.
     if average_fitness <= 0:
@@ -79,7 +97,7 @@ def setup_GA(fitness_fn, n_cities, size):
     :param size: The size of the grid
     :return: The fitness function and the GA instance.
     """
-    num_generations = 100
+    num_generations = 50
     num_parents_mating = 10
 
     solutions_per_population = 300
