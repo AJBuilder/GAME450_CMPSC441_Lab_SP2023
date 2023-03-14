@@ -16,7 +16,7 @@ data = pd.read_csv("src/lab10/heart.csv")
 print(data.head())
 string_col = data.select_dtypes(include="object").columns
 df = pd.get_dummies(data, columns=string_col, drop_first=False)
-print(data.head())
+print(df.head())
 
 y = df.HeartDisease.values
 x = df.drop(["HeartDisease"], axis=1)
@@ -26,12 +26,29 @@ x_train, x_test, y_train, y_test = train_test_split(
 
 """ Train a sklearn model here. """
 
-sklearn_model = None
+sklearn_model = KNeighborsClassifier(n_neighbors=5, weights="uniform", algorithm="auto",
+                                    leaf_size=30, p=2,metric="minkowski", n_jobs=2)
+
+sklearn_model.fit(x_train,y_train)
 
 # Accuracy
 print("Accuracy of model: {}\n".format(sklearn_model.score(x_test, y_test)))
 
 
 """ Improve the model by normalizing the input data. """
+
+sub_df = df.sub(df.min())
+norm_df = sub_df.div(sub_df.max())
+        
+print(norm_df.head())
+
+y = norm_df.HeartDisease.values
+x = norm_df.drop(["HeartDisease"], axis=1)
+x_train, x_test, y_train, y_test = train_test_split(
+    x, y, test_size=0.2, random_state=25
+)
+    
+sklearn_model.fit(x_train,y_train)
+
 
 print("Accuracy of improved model: {}\n".format(sklearn_model.score(x_test, y_test)))
