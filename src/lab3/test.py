@@ -1,17 +1,9 @@
-'''
-Lab 3: Travel Cost
-
-Your player will need to move from one city to another in order to complete the game.
-The player will have to spend money to travel between cities. The cost of travel depends 
-on the difficulty of the terrain.
-In this lab, you will write a function that calculates the cost of a route between two cities,
-A terrain is generated for you 
-'''
 import numpy as np
 
 from pathfinding.core.diagonal_movement import DiagonalMovement
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+
 
 def get_route_cost(route_coordinate, game_map):
     """
@@ -43,10 +35,7 @@ def get_route_cost(route_coordinate, game_map):
     :return: a floating point number representing the cost of the route
     """
     # Build a path from start to end that looks like [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
-    #print("Printing list: " + str(np.swapaxes(game_map, 0, 1).tolist()))
-    
-    grid = Grid(matrix=np.swapaxes(game_map, 0, 1).tolist())
-    #grid = Grid(matrix=game_map.tolist())
+    grid = Grid(matrix=game_map.tolist())
     
     start = grid.node(route_coordinate[0][0], route_coordinate[0][1])
     end = grid.node(route_coordinate[1][0], route_coordinate[1][1])
@@ -54,32 +43,11 @@ def get_route_cost(route_coordinate, game_map):
     finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
     path, runs = finder.find_path(start, end, grid)
     
-    #print('operations:', runs, 'path length:', len(path))
-    #print(grid.grid_str(path=path, start=start, end=end))
+    print('operations:', runs, 'path length:', len(path))
+    print(grid.grid_str(path=path, start=start, end=end))
     
-    #print("The zipped path: " + str(tuple(zip(*path))))
-    #print("Different sum: " + str(game_map[list(path)].sum()))
-    #print("The cost arr: " + str(game_map[tuple(zip(*path))]))
-    #print("The path: " + str(path))
-    
-    
+    pass 
     return game_map[tuple(zip(*path))].sum()
-
-
-def route_to_coordinates(city_locations, city_names, routes):
-    """ get coordinates of each of the routes from cities and city_names"""
-    route_coordinates = []
-    for route in routes:
-        start = city_names.index(route[0])
-        end = city_names.index(route[1])
-        route_coordinates.append((city_locations[start], city_locations[end]))
-    return route_coordinates
-
-
-def generate_terrain(map_size):
-    """ generate a terrain map of size map_size """
-    #return np.random.randint(low=0, high=10, size=map_size)
-    return np.random.rand(*map_size)
 
 
 def main():
@@ -91,23 +59,24 @@ def main():
 
     city_names = ['Morkomasto', 'Morathrad', 'Eregailin', 'Corathrad', 'Eregarta', 
                   'Numensari', 'Rhunkadi', 'Londathrad', 'Baernlad', 'Forthyr']
-    map_size = 100, 100
+    map_size = 10, 10
 
     n_cities = len(city_names)
-    game_map = generate_terrain(map_size)
-    print(f'Map size: {game_map.shape}')
-    game_map = (game_map * 11).astype(int) # Convert [0,1) float to [0,10] int
-    print(game_map)
     
-
+    game_map = [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,0,1,1,1,1,1,1],
+        [1,1,1,0,1,1,1,1,1,1],
+        [1,1,1,0,1,1,1,0,1,1],
+        [1,1,1,0,1,1,1,0,1,1],
+        [1,1,1,1,1,1,1,0,1,1],
+        [1,1,1,1,1,1,1,0,1,1],
+        [1,1,1,1,1,1,1,0,1,1],
+        ]
+    
     city_locations = get_randomly_spread_cities(map_size, n_cities)
     routes = get_routes(city_names)
+    
     np.random.shuffle(routes)
-    routes = routes[:3]
-    route_coordinates = route_to_coordinates(city_locations, city_names, routes)
-    for route, route_coordinate in zip(routes, route_coordinates):
-      print(f'Cost between {route[0]} and {route[1]}: {get_route_cost(route_coordinate, game_map)}')
-
-
-if __name__ == '__main__':
-    main()

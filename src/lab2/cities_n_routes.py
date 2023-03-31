@@ -4,8 +4,9 @@ Lab 2: Cities and Routes
 In the final project, you will need a bunch of cities spread across a map. Here you 
 will generate a bunch of cities and all possible routes between them.
 '''
-import random
-import itertools
+
+import random as rd
+import itertools as iter
 
 def get_randomly_spread_cities(size, n_cities):
     """
@@ -18,7 +19,15 @@ def get_randomly_spread_cities(size, n_cities):
     :return: A list of cities with random x and y coordinates.
     """
     # Consider the condition where x size and y size are different
-    pass
+    cities = []
+    location = []
+    for i in range(n_cities):
+        while tuple(location) in cities or len(location) == 0:
+            location = [rd.randint(0, size[0] - 1), rd.randint(0, size[1] - 1)]
+
+        cities.append(tuple(location))
+    
+    return cities
 
 def get_routes(city_names):
     """
@@ -29,8 +38,8 @@ def get_routes(city_names):
     :return: A list of tuples representing all possible links between cities/ pairs of cities, 
             each item in the list (a link) represents a route between two cities.
     """
-    pass
-
+    city_routes = iter.combinations(city_names, 2)
+    return list(city_routes)
 
 # TODO: Fix variable names
 if __name__ == '__main__':

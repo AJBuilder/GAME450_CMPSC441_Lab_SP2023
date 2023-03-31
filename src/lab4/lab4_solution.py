@@ -43,9 +43,72 @@ class AiPlayer(Player):
     def __init__(self, name):
         super().__init__(name)
         self.initial_weapon = random_weapon_select()
+        
     
     def weapon_selecting_strategy(self):
-        pass
+        history = min(len(self.opponent_choices), 15)
+        single = 0
+        switch = 0
+        mimic = 0
+        
+        if history > 0:
+            
+            # Score Single
+            for i in range(-history, 0):
+                if self.opponent_choices[i] == self.opponent_choices[-1]:
+                    single += 1
+                else:
+                    single = 0
+                    break
+            
+            # Score Switch
+            compIndex = -history
+            diffNum = 1
+            thisNum = 0
+            for i in range(-history, 0):
+                if self.opponent_choices[compIndex] == self.opponent_choices[i]:
+                    switch += 1
+                    thisNum += 1
+                else:
+                    if diffNum == 3:
+                        switch = 0
+                        break
+                    diffNum += 1
+                    switch += 1
+                    thisNum = 0
+                    compIndex = i
+                 
+            # Score Mimic
+            if history != 1:
+                for i in range(1, history):
+                    if self.opponent_choices[-i] == self.my_choices[-i-1]:
+                        mimic += 1
+                    else:
+                        mimic = 0
+                        break
+            else:
+                mimic = 0
+            
+            print(self.opponent_choices)            
+                
+            print("Single Score: " + str(single))
+            print("Switch Score: " + str(switch))
+            print("Mimic Score: " + str(mimic))
+            
+            if single >= switch and single >= mimic:
+                return (self.opponent_choices[-1] + 1) % 3 # Select weapon that would beat last choice
+            
+            if switch > single and switch > mimic:
+                lastTen = min(len(self.opponent_choices), 10)
+                if self.opponent_choices[-lastTen:].count(self.opponent_choices[-1]) == 10:
+                    return random_weapon_select() # Weapon is going to change, so pick new weapon
+                else:
+                    return (self.opponent_choices[-1] + 1) % 3
+                
+            if mimic > single and mimic > switch:
+                return (self.my_choices[-1] + 1) % 3 # Pick to beat my last weapon
+        
+        return random_weapon_select() # If no clue, random weapon
 
 
 if __name__ == '__main__':
