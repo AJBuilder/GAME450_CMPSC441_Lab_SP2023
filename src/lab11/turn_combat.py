@@ -61,6 +61,7 @@ class Combat:
     def __init__(self):
         self.gameOver = False
         self.round = 0
+        self.history=[]
 
     def newRound(self):
         self.round += 1
@@ -71,12 +72,17 @@ class Combat:
         if player.health < 1 and opponent.health > 0:
             self.gameOver = True
             print("You Lose")
+            return -1
         elif opponent.health < 1 and player.health > 0:
             self.gameOver = True
             print("You Win")
+            return 1
         elif player.health < 1 and opponent.health < 1:
             self.gameOver = True
             print("*** Draw ***")
+            return 1
+        return 0
+        
 
     def displayResult(self, player, opponent):
         print(
