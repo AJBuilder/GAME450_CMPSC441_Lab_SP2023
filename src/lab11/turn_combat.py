@@ -25,15 +25,14 @@ class CombatPlayer(Player):
 
         :param percept: Tuple of (environment state, opponent's last move)
         """
-        env_state = percept[0]
-        last_weapon = percept[1]
+        env_state = percept
         # ** Previous round update **
         if percept is not None:
-            self.opponent_choices.append(last_weapon)
             self.current_env_state = env_state
 
         # ** Current round update **
         self._action = self.weapon_selecting_strategy()
+        self.weapon = self._action
         self.my_choices.append(self.action)
 
     def damage(self):
@@ -82,7 +81,6 @@ class Combat:
             print("*** Draw ***")
             return 1
         return 0
-        
 
     def displayResult(self, player, opponent):
         print(
