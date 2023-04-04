@@ -74,7 +74,23 @@ def run_episodes(n_episodes):
         Return the action values as a dictionary of dictionaries where the keys are states and 
             the values are dictionaries of actions and their values.
     '''
-
+    episodeReturns = []
+    
+    for i in range(n_episodes):
+        episodeReturns.append(get_history_returns(run_episode(PyGameRandomCombatPlayer("Player1"), PyGameComputerCombatPlayer("Player2"))))
+    
+    returnsSum = {}
+    for ret in episodeReturns:
+        for state in ret.keys():
+            for action in state.keys():
+                returnsSum[state][action].value += ret[state][action]
+                returnsSum[state][action].num += 1
+    
+    action_values = {}
+    for state in returnsSum:
+        for action in returnsSum:
+            action_values[state][action] = returnsSum[state][action].value / returnsSum.num
+        
     return action_values
 
 
@@ -99,8 +115,8 @@ def test_policy(policy):
 
 
 if __name__ == "__main__":
-    action_values = run_episodes(10000)
-    print(action_values)
+    action_values = run_episodes(10)
+    print("Action values" + str(action_values))
     optimal_policy = get_optimal_policy(action_values)
-    print(optimal_policy)
-    print(test_policy(optimal_policy))
+    print("Optimal policy" + str(optimal_policy))
+    #print(test_policy(optimal_policy))
