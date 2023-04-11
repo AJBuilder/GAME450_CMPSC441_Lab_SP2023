@@ -22,7 +22,7 @@ def draw_combat_on_window(combat_surface, screen, player_sprite, opponent_sprite
     pygame.display.update()
 
 
-def run_turn(currentGame, player, opponent):
+def run_turn(currentGame, player, opponent, printOutput=False):
     
     players = [player, opponent]
 
@@ -35,17 +35,12 @@ def run_turn(currentGame, player, opponent):
     
     currentGame.newRound()
     currentGame.takeTurn(player, opponent)
-    print("%s's health = %d" % (player.name, player.health))
-    print("%s's health = %d" % (opponent.name, opponent.health))
+    if(printOutput):
+        print("%s's health = %d" % (player.name, player.health))
+        print("%s's health = %d" % (opponent.name, opponent.health))
     
-    result = currentGame.checkWin(player, opponent)
     
-    reward = 0
-    if(playerPrevHealth == player.health): reward += 1
-    if(opponentPrevHealth > opponent.health): reward += 1
-    reward += result * 2
-    
-    currentGame.history.append(((player.health,opponent.health), player.my_choices[-1], reward))
+    currentGame.history.append(((playerPrevHealth,opponentPrevHealth), player.my_choices[-1], currentGame.checkWin(player, opponent)))
 
 
 
@@ -70,20 +65,6 @@ def draw_combat_on_window(combat_surface, screen, player_sprite, opponent_sprite
     text_surface = game_font.render("Choose s-Sword a-Arrow f-Fire!", True, (0, 0, 150))
     screen.blit(text_surface, (50, 50))
     pygame.display.update()
-
-
-def run_turn(currentGame, player, opponent):
-    players = [player, opponent]
-    states = list(reversed([(player.health, player.weapon) for player in players]))
-    for current_player, state in zip(players, states):
-        current_player.selectAction(state)
-
-    currentGame.newRound()
-    currentGame.takeTurn(player, opponent)
-    print("%s's health = %d" % (player.name, player.health))
-    print("%s's health = %d" % (opponent.name, opponent.health))
-    reward = currentGame.checkWin(player, opponent)
-
 
 def run_pygame_combat(combat_surface, screen, player_sprite):
     currentGame = Combat()

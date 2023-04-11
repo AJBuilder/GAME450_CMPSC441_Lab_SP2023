@@ -24,11 +24,11 @@ from lab11.pygame_ai_player import PyGameAICombatPlayer
 from lab11.pygame_combat import Combat, run_turn
 
 
-def run_episode(player1, player2):
+def run_episode(player1, player2, printOutput=False):
     episodeCombat = Combat()
     
     while not episodeCombat.gameOver:
-        run_turn(episodeCombat, player1, player2)
+        run_turn(episodeCombat, player1, player2, printOutput)
     
     return episodeCombat.history
 

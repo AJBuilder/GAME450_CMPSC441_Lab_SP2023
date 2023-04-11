@@ -42,7 +42,8 @@ class PyGamePolicyCombatPlayer(CombatPlayer):
         self.policy = policy
 
     def weapon_selecting_strategy(self):
-        self.weapon = self.policy[self.current_env_state]
+        self.weapon = self.policy[(self.health, self.current_env_state[0])]
+        #self.weapon = self.policy[self.current_env_state]
         return self.weapon
 
 
@@ -77,19 +78,25 @@ def run_episodes(n_episodes):
     episodeReturns = []
     
     for i in range(n_episodes):
-        episodeReturns.append(get_history_returns(run_episode(PyGameRandomCombatPlayer("Player1"), PyGameComputerCombatPlayer("Player2"))))
+        episodeReturns.append(get_history_returns(run_episode(PyGameRandomCombatPlayer("Player1"), PyGameComputerCombatPlayer("Player2"), False)))
     
     returnsSum = {}
     for ret in episodeReturns:
-        for state in ret.keys():
-            for action in state.keys():
-                returnsSum[state][action].value += ret[state][action]
-                returnsSum[state][action].num += 1
+        for state in ret:
+            if state not in returnsSum: 
+                    returnsSum[state] = {}
+            for action in ret[state]:
+                if action not in returnsSum[state]: 
+                    returnsSum[state][action] = {"value": 0, "num": 0}
+                returnsSum[state][action]["value"] += ret[state][action]
+                returnsSum[state][action]["num"] += 1
     
     action_values = {}
     for state in returnsSum:
-        for action in returnsSum:
-            action_values[state][action] = returnsSum[state][action].value / returnsSum.num
+        if state not in action_values:
+            action_values[state] = {}
+        for action in returnsSum[state]:
+            action_values[state][action] = returnsSum[state][action]["value"] / returnsSum[state][action]["num"]
         
     return action_values
 
@@ -109,14 +116,14 @@ def test_policy(policy):
         player2 = PyGameComputerCombatPlayer(names[1])
         players = [player1, player2]
         total_reward += sum(
-            [reward for _, _, reward in run_episode(*players)]
+            [reward for _, _, reward in run_episode(*players,printOutput=True)]
         )
     return total_reward / 100
 
 
 if __name__ == "__main__":
-    action_values = run_episodes(10)
+    action_values = run_episodes(2000)
     print("Action values" + str(action_values))
     optimal_policy = get_optimal_policy(action_values)
     print("Optimal policy" + str(optimal_policy))
-    #print(test_policy(optimal_policy))
+    print(test_policy(optimal_policy))
