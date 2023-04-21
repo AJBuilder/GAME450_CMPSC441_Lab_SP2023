@@ -7,6 +7,7 @@ will generate a bunch of cities and all possible routes between them.
 
 import random as rd
 import itertools as iter
+from math import sqrt
 
 def get_randomly_spread_cities(size, n_cities):
     """
@@ -37,24 +38,60 @@ def get_routes(cities):
     :param cities: coordinates of a city
     :return: A list of tuples representing each route between cities
     """
+    cities = list(map(tuple, cities))
     routes = {}
+    for c in cities:
+        routes[c] = []
     for city in cities:
-        connected = []
         closest_dist = 10000000000
-        while len(connected) < 3:
+        closest_city = city
+        for other_city in cities:
+            if other_city != city and other_city not in routes[city] and city not in routes[other_city]:
+                distance = sqrt( pow(city[0] - other_city[0], 2) + pow(city[1] - other_city[1], 2))
+                if distance < closest_dist:
+                    closest_dist = distance
+                    closest_city = other_city
+        routes[city].append(closest_city)
+        routes[closest_city].append(city)
+    
+    city = cities[0]
+    while True:
+        visited = [city]
+        toExplore = routes[city]
+        while len(toExplore) != 0:
+            if toExplore[0] not in visited and toExplore[0] in routes:
+                visited.append(toExplore[0])
+                toExplore = toExplore + routes[toExplore[0]]
+            toExplore.pop(0)
+                
+        if len(visited) == len(routes):
+            break
+        
+        possible_routes = {}
+        closest_dist = 10000000000
+        connecting_city = city
+        closest_city = city
+        for city in visited:
             for other_city in cities:
-                if other_city != city and other_city not in connected and (city not in routes or routes[city] != other_city):
-                    distance = pow( pow(city[0] - other_city[0], 2) + pow(city[1] - other_city[1], 2),-2)
+                if other_city != city and other_city not in visited:
+                    distance = sqrt( pow(city[0] - other_city[0], 2) + pow(city[1] - other_city[1], 2))
                     if distance < closest_dist:
                         closest_dist = distance
-            connected.append(other_city)
-        routes[city] = other_city
-    
+                        closest_city = other_city
+                        connecting_city = city
+                        
+        routes[connecting_city].append(closest_city)
+        routes[closest_city].append(connecting_city)
+        
+
     print("Routes dict" + str(routes))
     list_routes = []
     for route in routes:
-        list_routes.append((route, routes[route]))
+        for to in routes[route]:
+            if (route, to) not in list_routes and (to, route) not in list_routes:
+                list_routes.append((route, to))
     print("List routes" + str(list_routes))
+            
     return list_routes
 
 # TODO: Fix variable names

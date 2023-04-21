@@ -192,10 +192,10 @@ def setup_GA(fitness_fn, n_cities, size):
     :param size: The size of the grid
     :return: The fitness function and the GA instance.
     """
-    num_generations = 50
+    num_generations = 10
     num_parents_mating = 10
 
-    solutions_per_population = 300
+    solutions_per_population = 500
     num_genes = n_cities
 
     init_range_low = 0
@@ -240,7 +240,7 @@ def solution_to_cities(solution, size):
     cities = np.array(
         list(map(lambda x: [int(x / size[0]), int(x % size[1])], solution))
     )
-    return cities
+    return cities.tolist()
 
 
 def show_cities(cities, landscape_pic, cmap="gist_earth"):

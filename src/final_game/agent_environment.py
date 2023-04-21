@@ -8,6 +8,7 @@ from pygame_combat import run_pygame_combat
 from pygame_human_player import PyGameHumanPlayer
 from pygame_ai_player import PyGameAIPlayer
 from travel_cost import get_path
+from ga_cities import game_fitness, setup_GA, solution_to_cities, elevation_steps
 
 from landscape import get_elevation, elevation_to_rgba
 from cities_n_routes import get_randomly_spread_cities, get_routes
@@ -83,11 +84,10 @@ if __name__ == "__main__":
     size = width, height = 640, 480
     #size = width, height = 50, 20
     black = 1, 1, 1
-    start_city = 0
-    end_city = 9
-    sprite_path = "assets/lego.png"
+    sprite_road = "assets/lego.png"
     sprite_speed = 1
 
+    
     screen = setup_window(width, height, "Game World Gen Practice")
 
     elevation = get_elevation(size)
@@ -107,25 +107,48 @@ if __name__ == "__main__":
         "Forthyr",
     ]
 
-    cities = get_randomly_spread_cities(size, len(city_names))
+    # setup fitness function and GA
+    fitness = lambda cities, idx: game_fitness(
+        cities, idx, elevation=elevation, size=size
+    )
+    fitness_function, ga_instance = setup_GA(fitness, len(city_names), size)
+    # Run the GA to optimize the parameters of the function.
+    ga_instance.run()
+    ga_instance.plot_fitness()
+
+    # Show the best solution after the GA finishes running.
+    cities = ga_instance.best_solution()[0]
+    cities = solution_to_cities(cities, size)
+    
+    road_downsampling = 20
+    #cities = get_randomly_spread_cities(size, len(city_names))
+    print(cities)
     routes = get_routes(cities)
-    cost_map = elevation[::3,::3]
-    cost_map = (cost_map - cost_map.min())/(cost_map.max()-cost_map.min()) * 100
+    cost_map = elevation[::road_downsampling,::road_downsampling]
+    for i, costs in enumerate(cost_map):
+        for j, cost in enumerate(costs):
+            if cost < elevation_steps[1]:
+                cost_map[i][j] = 0
+            elif cost > elevation_steps[2]:
+                cost_map[i][j] = 1
+            elif cost > elevation_steps[3]:
+                cost_map[i][j] = 0
+            
+    cost_map = cost_map * 100
     cost_map = np.swapaxes(cost_map, 0, 1)
     
-    paths = []
+    roads = []
     print("Routes")
     for route in routes:
-        print("Path appended")
-        path = get_path(((int(route[0][0] / 3), int(route[0][1] / 3)), (int(route[1][0] / 3), int(route[1][1] / 3))), cost_map)
-        for i, point in enumerate(path):
-            path[i] = (point[0] * 3, point[1]*3)
-        paths.append(path)
+        print("road appended")
+        road = get_path(((int(route[0][0] / road_downsampling), int(route[0][1] / road_downsampling)), (int(route[1][0] / road_downsampling), int(route[1][1] / road_downsampling))), cost_map)
+        if len(road) > 0:
+            for i, point in enumerate(road):
+                road[i] = (point[0] * road_downsampling, point[1] * road_downsampling)
+            road = [route[0]] + road + [route[1]]
+            roads.append(road)
 
-    random.shuffle(routes)
-    routes = routes[:10]
-
-    player_sprite = Sprite(sprite_path, cities[start_city])
+    player_sprite = Sprite(sprite_road, cities[start_city])
 
     player = PyGameHumanPlayer()
 
@@ -157,13 +180,11 @@ if __name__ == "__main__":
         for city in cities:
             pygame.draw.circle(screen, (255, 0, 0), city, 5)
 
-        print("paths")
-        for path in paths:
-            prevPoint = path[0]
-            for point in path[1:]:
+        for road in roads:
+            prevPoint = road[0]
+            for point in road[1:]:
                 pygame.draw.line(screen, (255, 0, 0), prevPoint, point)
                 prevPoint = point
-        print("Done printing paths")
 
         displayCityNames(cities, city_names)
         
