@@ -39,8 +39,11 @@ def run_turn(currentGame, player, opponent, printOutput=False):
         print("%s's health = %d" % (player.name, player.health))
         print("%s's health = %d" % (opponent.name, opponent.health))
     
+    win = currentGame.checkWin(player, opponent)
     
-    currentGame.history.append(((playerPrevHealth,opponentPrevHealth), player.my_choices[-1], currentGame.checkWin(player, opponent)))
+    currentGame.history.append(((playerPrevHealth,opponentPrevHealth), player.my_choices[-1], win))
+    
+    return win
 
 
 
@@ -79,12 +82,17 @@ def run_pygame_combat(combat_surface, screen, player_sprite):
         AI_SPRITE_PATH, (250, 400)
     )
 
+    result = 1
     # Main Game Loop
     while not currentGame.gameOver:
         draw_combat_on_window(combat_surface, screen, player_sprite, opponent_sprite)
 
-        run_turn(currentGame, player, opponent)
+        result = run_turn(currentGame, player, opponent, True)
         
     player_sprite.sprite_pos = travelling_player_position
+    
+    return result
+    
+    
     
     

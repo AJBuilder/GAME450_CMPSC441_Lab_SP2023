@@ -48,11 +48,14 @@ def get_routes(cities):
         for other_city in cities:
             if other_city != city and other_city not in routes[city] and city not in routes[other_city]:
                 distance = sqrt( pow(city[0] - other_city[0], 2) + pow(city[1] - other_city[1], 2))
-                if distance < closest_dist:
+                if distance < 125:
+                    routes[city].append(other_city)
+                elif distance < closest_dist:
                     closest_dist = distance
                     closest_city = other_city
-        routes[city].append(closest_city)
-        routes[closest_city].append(city)
+        if closest_dist < 500:
+            routes[city].append(closest_city)
+            routes[closest_city].append(city)
     
     city = cities[0]
     while True:

@@ -240,7 +240,7 @@ def solution_to_cities(solution, size):
     cities = np.array(
         list(map(lambda x: [int(x / size[0]), int(x % size[1])], solution))
     )
-    return cities.tolist()
+    return [ tuple(x) for x in cities.tolist()]
 
 
 def show_cities(cities, landscape_pic, cmap="gist_earth"):
