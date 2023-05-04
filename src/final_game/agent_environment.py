@@ -116,7 +116,7 @@ if __name__ == "__main__":
     fitness_function, ga_instance = setup_GA(fitness, len(city_names), size)
     # Run the GA to optimize the parameters of the function.
     ga_instance.run()
-    ga_instance.plot_fitness()
+    #ga_instance.plot_fitness()
 
     # Show the best solution after the GA finishes running.
     cities = ga_instance.best_solution()[0]
